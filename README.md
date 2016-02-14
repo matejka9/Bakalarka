@@ -6,3 +6,9 @@ Server technologie:
 
 Server vyvojove prostredie:
   InteliJ Idea
+
+Admin technologie:
+  Django
+
+Admin vyvojove prostredie:
+  LiClipse
