@@ -1,7 +1,7 @@
 # Bakalarka
 
 Server technologie:
-  Spring
+  Spring,
   Google App Engine
 
 Server vyvojove prostredie:
