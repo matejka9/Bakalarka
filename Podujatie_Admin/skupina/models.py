@@ -10,7 +10,7 @@ class Skupina(models.Model):
     
     class Meta:
         verbose_name_plural = 'Skupiny'
-        app_label ="podium"
+        #app_label ="podium"
         
     def __str__(self):
         return self.nazov

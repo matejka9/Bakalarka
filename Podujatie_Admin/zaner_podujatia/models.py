@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from zaner.models import Zaner
-from podujatie.models import Podujatie
+from Podujatie.models import Podujatie
 
 # Create your models here.
 
@@ -12,7 +12,7 @@ class ZanerPodujatia(models.Model):
     
     class Meta:
         verbose_name_plural = 'Zanre Podujati'
-        app_label ="podujatie"
+        #app_label ="podujatie"
         
     def __str__(self):
         return str(self.zaner_id) + " " + str(self.podujatie_id) 

@@ -15,7 +15,7 @@ class Podium(models.Model):
     
     class Meta:
         verbose_name_plural = 'Podia'
-        app_label ="podium"
+        #app_label ="podium"
         
     def __str__(self):
         return self.nazov

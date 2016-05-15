@@ -9,7 +9,7 @@ class Zaner(models.Model):
     
     class Meta:
         verbose_name_plural = 'Zanre'
-        app_label ="podujatie"
+        #app_label ="podujatie"
         
     def __str__(self):
         return self.nazov

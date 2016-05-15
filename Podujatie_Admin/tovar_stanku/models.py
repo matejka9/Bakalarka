@@ -14,7 +14,7 @@ class TovarStanku(models.Model):
     
     class Meta:
         verbose_name_plural = 'Tovar Stankov'
-        app_label ="stanok"
+        #app_label ="stanok"
         
     def __str__(self):
         return str(self.stanok_id) + " " + str(self.tovar_id)

@@ -16,7 +16,7 @@ class SkupinaPodia(models.Model):
     
     class Meta:
         verbose_name_plural = 'Skupiny podia'
-        app_label ="podium"
+        #app_label ="podium"
         
     def __str__(self):
         return str(self.skupina_id) + " " + str(self.skupina_id)

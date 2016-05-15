@@ -19,7 +19,7 @@ class Podujatie(models.Model):
     
     class Meta:
         verbose_name_plural = 'Podujatia'
-        app_label ="podujatie"
+        #app_label ="Podujatie"
         
     def __str__(self):
         return self.nazov

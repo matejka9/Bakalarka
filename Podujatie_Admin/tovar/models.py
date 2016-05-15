@@ -9,7 +9,7 @@ class Tovar(models.Model):
     
     class Meta:
         verbose_name_plural = 'Tovary'
-        app_label ="stanok"
+        #app_label ="stanok"
         
     def __str__(self):
         return self.nazov
