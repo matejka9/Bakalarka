@@ -1,19 +1,15 @@
 from __future__ import unicode_literals
 
+
 from django.db import models
 from Podujatie.models import Podujatie
 
 # Create your models here.
 
+
 class Mapa(models.Model):
-    typ_choices = (
-                   (0, 'Hlavna'),
-                   (1, 'Vedlajsia')
-                   )
-    
-    podujatie_id = models.ForeignKey(Podujatie, null=False, blank = False, default = None)
-    mapicka = models.ImageField(default = None, null=False, blank=False)
-    typ = models.CharField(max_length = 1, choices = typ_choices)
+    podujatie = models.ForeignKey(Podujatie, null=False, blank = False, default = None)
+    mapka = models.TextField(null=False, blank = False, default = None)
     lavy_horny_roh_gps_latitude = models.FloatField(null=False, blank = False, default = None)
     lavy_horny_roh_gps_longitude = models.FloatField(null=False, blank = False, default = None)
     pravy_spodny_roh_gps_latitude = models.FloatField(null=False, blank = False, default = None)
@@ -24,7 +20,7 @@ class Mapa(models.Model):
         #app_label ="mapa"
         
     def __str__(self):
-        return self.typ + " " + str(self.podujatie_id)
+        return str(self.podujatie_id)
     
     def __repr__(self):
-        return self.typ + " " + str(self.podujatie_id)
+        return str(self.podujatie_id)

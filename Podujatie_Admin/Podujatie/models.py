@@ -7,19 +7,18 @@ from django.contrib.auth.models import User
 
 class Podujatie(models.Model):
     typ_choices = (
-                   (0, 'Festival'),
-                   (1, 'Hody')
+                   ('Festival', 'Festival'),
+                   ('Hody', 'Hody')
                    )
     
-    administrator_id = models.ForeignKey(User, null=False, blank = False, default = None)
+    administrator = models.ForeignKey(User, null=False, blank = False, default = None)
     nazov = models.CharField(max_length = 255, default = None, null=False, blank=False)
-    typ = models.CharField(max_length = 1, choices = typ_choices)
+    typ = models.CharField(max_length = 255, choices = typ_choices)
     datum_od = models.DateField(null = False, blank = False, default = None)
     datum_do = models.DateField(null = False, blank = False, default = None)
     
     class Meta:
         verbose_name_plural = 'Podujatia'
-        #app_label ="Podujatie"
         
     def __str__(self):
         return self.nazov

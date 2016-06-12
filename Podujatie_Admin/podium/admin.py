@@ -5,7 +5,7 @@ from models import Podium
 
 class PodiumAdmin(admin.ModelAdmin):
     model = Podium
-    #list_display = ['mapa_id', 'nazov']
+    list_display = ['mapa_id', 'nazov']
     #search_fields = ['mapa_id', 'nazov']
     
     

@@ -7,8 +7,8 @@ from Podujatie.models import Podujatie
 # Create your models here.
 
 class ZanerPodujatia(models.Model):
-    podujatie_id = models.ForeignKey(Podujatie, null=False, blank = False, default = None)
-    zaner_id = models.ForeignKey(Zaner, null=False, blank = False, default = None)
+    podujatie = models.ForeignKey(Podujatie, null=False, blank = False, default = None)
+    zaner = models.ForeignKey(Zaner, null=False, blank = False, default = None)
     
     class Meta:
         verbose_name_plural = 'Zanre Podujati'

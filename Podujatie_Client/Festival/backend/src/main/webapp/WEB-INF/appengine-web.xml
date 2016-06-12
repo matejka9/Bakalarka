@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
+    <application>festival</application>
+    <module>default</module>
+    <version>1</version>
+    <threadsafe>true</threadsafe>
+
+    <use-google-connector-j>true</use-google-connector-j>
+
+    <system-properties>
+        <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
+        <property name="cloudsql.url.client" value="jdbc:google:mysql://festival-1220:festival/client?user=root&amp;password=root&amp;autoReconnect=true&amp;failOverReadOnly=false&amp;maxReconnects=10"/>
+        <property name="cloudsql.url.client.dev" value="jdbc:mysql://127.0.0.1:3306/client?user=root&amp;password=root"/>
+    </system-properties>
+
+    <ssl-enabled>true</ssl-enabled>
+    <!--<sessions-enabled>true</sessions-enabled>-->
+
+    <warmup-requests-enabled>true</warmup-requests-enabled>
+    <instance-class>F1</instance-class>
+    <automatic-scaling>
+        <min-idle-instances>1</min-idle-instances>
+        <!-- ‘automatic’ is the default value. -->
+        <!--<max-idle-instances>automatic</max-idle-instances>-->
+        <!-- ‘automatic’ is the default value. -->
+        <!--<min-pending-latency>automatic</min-pending-latency>-->
+        <!--<max-pending-latency>1s</max-pending-latency>-->
+        <!--<max-concurrent-requests>50</max-concurrent-requests>-->
+    </automatic-scaling>
+
+</appengine-web-app>

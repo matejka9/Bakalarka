@@ -5,7 +5,6 @@ from django.db import models
 # Create your models here.
 class Tovar(models.Model):
     nazov = models.CharField(max_length = 255, default = None, null=False, blank=False)
-    foto = models.ImageField(null=True)
     
     class Meta:
         verbose_name_plural = 'Tovary'

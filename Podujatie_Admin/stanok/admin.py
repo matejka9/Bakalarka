@@ -5,7 +5,7 @@ from models import Stanok
 
 class StanokAdmin(admin.ModelAdmin):
     model = Stanok
-    #list_display = ['mapa_id', 'nazov']
+    list_display = ['mapa_id', 'nazov']
     #search_fields = ['mapa_id', 'nazov']
     
     

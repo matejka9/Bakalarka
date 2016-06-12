@@ -5,8 +5,7 @@ from models import Mapa
 
 class MapaAdmin(admin.ModelAdmin):
     model = Mapa
-    list_display = ['podujatie_id', 'typ']
-    list_filter = ['podujatie_id', 'typ']
+    list_display = ['podujatie_id']
     search_fields = ['podujatie_id']
     
 admin.site.register(Mapa, MapaAdmin)
