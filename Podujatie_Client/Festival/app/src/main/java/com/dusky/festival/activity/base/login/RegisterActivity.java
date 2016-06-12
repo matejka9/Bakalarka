@@ -33,6 +33,7 @@ import android.widget.Toast;
 
 import com.dusky.festival.R;
 import com.dusky.festival.gae.connection.user.RegisterUserAsyncTask;
+import com.dusky.festival.helper.ui.HideKeyboardHelper;
 import com.example.dusky.myapplication.backend.user.model.UserEntityModel;
 
 import java.util.ArrayList;
@@ -66,6 +67,7 @@ public class RegisterActivity extends AppCompatActivity implements LoaderCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        HideKeyboardHelper.setupUI(findViewById(R.id.parent),this);
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();

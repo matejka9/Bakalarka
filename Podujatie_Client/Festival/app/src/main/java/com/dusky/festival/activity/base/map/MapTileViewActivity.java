@@ -1,7 +1,9 @@
 package com.dusky.festival.activity.base.map;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.location.Location;
@@ -12,12 +14,18 @@ import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.text.InputType;
 import android.util.Pair;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dusky.festival.R;
@@ -29,6 +37,7 @@ import com.dusky.festival.gae.connection.MapaAsyncTask;
 import com.dusky.festival.gps.MyLocationListener;
 import com.dusky.festival.helper.image.SplitCutterImage;
 import com.dusky.festival.helper.image.SplittedImage;
+import com.dusky.festival.helper.ui.HideKeyboardHelper;
 import com.example.dusky.myapplication.backend.podujatie.model.OstatneMiestaResponseEntityModel;
 import com.example.dusky.myapplication.backend.podujatie.model.PodiumResponseEntityModel;
 import com.example.dusky.myapplication.backend.podujatie.model.PodujatieDetailResponseEntityModel;
@@ -56,21 +65,28 @@ public class MapTileViewActivity extends TileViewActivity {
 
     private Long idPodujatie;
     private String keyMapy;
+
     private PodujatieDetailResponseEntityModel data;
     private List<StanokResponseEntityModel> stanky;
     private List<PodiumResponseEntityModel> podia;
     private List<OstatneMiestaResponseEntityModel> ostatneMiesta;
+    private List<String> vlastneMiesta;//TODO nacitaj z databazy
+
     private HashMap<Long, List<TovarResponseEntityModel>> stanokAndTovar;
     private HashMap<Long, List<VystupenieResponseEntityModel>> podiumAndVystupenie;
 
-    private ArrayList<View> ostatneBudovyMarkre;
-    private ArrayList<View> stankyMarkre;
-    private ArrayList<View> podiaMarkre;
+    private ArrayList<ImageView> ostatneBudovyMarkre;
+    private ArrayList<ImageView> stankyMarkre;
+    private ArrayList<ImageView> podiaMarkre;
+    private ArrayList<ImageView> vlastneMiestaMarkre;//TODO vytvor markre pre nacitane
+
     private LocationManager locationManager;
     private View user;
     private double userLatitude = 25.0;
     private double userLongitude = 60.0;
     private MyLocationListener locationListener;
+
+    private int indexNajlacnejsi;
 
     public void changePosition(double latitude, double longitude) {
         TileView tile = getTileView();
@@ -82,6 +98,7 @@ public class MapTileViewActivity extends TileViewActivity {
     }
 
     public enum CallOutType {
+        //TODO pridaj moje miesto
         STANOK, PODIUM, OSTATNE_BUDOVY, USER
     }
 
@@ -95,10 +112,11 @@ public class MapTileViewActivity extends TileViewActivity {
             this.keyMapy = SplitCutterImage.getKeyForMap(idPodujatie);
         }
 
-        ostatneBudovyMarkre = new ArrayList<View>();
-        stankyMarkre = new ArrayList<View>();
-        podiaMarkre = new ArrayList<View>();
+        ostatneBudovyMarkre = new ArrayList<ImageView>();
+        stankyMarkre = new ArrayList<ImageView>();
+        podiaMarkre = new ArrayList<ImageView>();
 
+        showProgress(true);
         new MapaAsyncTask().execute(new Pair<MapTileViewActivity, Long>(this, idPodujatie));
     }
 
@@ -109,12 +127,115 @@ public class MapTileViewActivity extends TileViewActivity {
 
     @Override
     protected void pouzilPoziciu() {
-        System.out.println("Pouzil button");
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Nová poloha");
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT );
+        builder.setView(input);
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //TODO pridaj novu polohu
+            }
+        });
+        builder.setNegativeButton("Zrušiť", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
     }
 
     @Override
     protected void pouzilInput() {
         System.out.println("Klikol");
+        HideKeyboardHelper.hideSoftKeyboard(this);
+        hideAllMarks();
+        String hladanyTovar = input.getText().toString();
+
+        if (indexNajlacnejsi >= 0){
+            ImageView marker = stankyMarkre.get(indexNajlacnejsi);
+            marker.setImageResource(R.drawable.map_marker_normal );
+            indexNajlacnejsi = -1;
+        }
+
+        if (hladanyTovar.equals("")){
+            showAllMarks();
+        }else{
+            TileView tile = getTileView();
+            double najlacnejsiaCena = Double.MAX_VALUE;
+
+            for (int index = 0; index < stanky.size(); index++){
+                StanokResponseEntityModel stanok = stanky.get(index);
+                for (TovarResponseEntityModel tovar: stanokAndTovar.get(stanok.getId())){
+                    if (tovar.getNazov().equals(hladanyTovar)){
+                        if (tovar.getCena() < najlacnejsiaCena){
+                            najlacnejsiaCena = tovar.getCena();
+                            indexNajlacnejsi = index;
+                        }
+                        View marker = stankyMarkre.get(index);
+                        tile.addMarker( marker, stanok.getLatidute(), stanok.getLongitude(), null, null );
+                    }
+                }
+            }
+
+            if (indexNajlacnejsi >= 0){
+                ImageView marker = stankyMarkre.get(indexNajlacnejsi);
+                marker.setImageResource(R.drawable.map_marker_featured );
+                StanokResponseEntityModel stanok = stanky.get(indexNajlacnejsi);
+                frameTo(stanok.getLongitude(), stanok.getLatidute());
+            }
+        }
+    }
+
+    private void showAllMarks() {
+        addBackStanky();
+        addBackPodia();
+        addBackOstatneMiesta();
+    }
+
+    private void addBackStanky() {
+        TileView tile = getTileView();
+        for (int index = 0; index < stankyMarkre.size(); index++){
+            StanokResponseEntityModel stanok = stanky.get(index);
+            View marker = stankyMarkre.get(index);
+            tile.addMarker( marker, stanok.getLatidute(), stanok.getLongitude(), null, null );
+        }
+    }
+
+    private void addBackPodia() {
+        TileView tile = getTileView();
+        for (int index = 0; index < podiaMarkre.size(); index++){
+            PodiumResponseEntityModel podium = podia.get(index);
+            View marker = podiaMarkre.get(index);
+            tile.addMarker( marker, podium.getLatidute(), podium.getLongitude(), null, null );
+        }
+    }
+
+    private void addBackOstatneMiesta() {
+        TileView tile = getTileView();
+        for (int index = 0; index < ostatneBudovyMarkre.size(); index++){
+            OstatneMiestaResponseEntityModel ostatneMiesto = ostatneMiesta.get(index);
+            View marker = ostatneBudovyMarkre.get(index);
+            tile.addMarker( marker, ostatneMiesto.getLatidute(), ostatneMiesto.getLongitude(), null, null );
+        }
+    }
+
+    private void hideAllMarks() {
+        removeMarkers(ostatneBudovyMarkre);
+        removeMarkers(stankyMarkre);
+        removeMarkers(podiaMarkre);
+    }
+
+    private void removeMarkers(ArrayList<ImageView> listMarkers) {
+        TileView tile = getTileView();
+        for (View view: listMarkers){
+            tile.removeMarker(view);
+        }
     }
 
     @Override
@@ -139,6 +260,12 @@ public class MapTileViewActivity extends TileViewActivity {
         this.stanokAndTovar = sortTovarAndStoreToDb(result.getTovar().getTovarList());
         this.podiumAndVystupenie = sortVystupenieAndStoreToDb(result.getVystupenia().getVystupeniaList());
         setTovarForInput();
+        showProgress(false);
+    }
+
+    public void failedDownload() {
+        super.failedDownload();
+        Toast.makeText(this, "Failed download Data", Toast.LENGTH_LONG).show();
     }
 
     private void setTovarForInput() {
@@ -180,10 +307,6 @@ public class MapTileViewActivity extends TileViewActivity {
             dbTovar.insertTovar(tovar);
         }
         return mapa;
-    }
-
-    public void failedDownload() {
-        Toast.makeText(this, "Failed download Data", Toast.LENGTH_LONG).show();
     }
 
     public void succesDownloadMap(Bitmap result) {
@@ -366,6 +489,7 @@ public class MapTileViewActivity extends TileViewActivity {
                     callout.setTitle("Tu ste vy");
 
                     break;
+                //TODO uhendluj moje miesto
                 default:
                     break;
             }

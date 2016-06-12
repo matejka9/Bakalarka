@@ -26,10 +26,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
-public class PodujatieListActivity extends ListActivity {
-
-    private TextView headerText;
-    private ListView listView;
+public class PodujatieListActivity extends LoadingListActivity {
 
     private static InputMenuType type;
     private MojePodujatiaDBHelper db;
@@ -44,6 +41,7 @@ public class PodujatieListActivity extends ListActivity {
         setContentView(R.layout.activity_podujatie);
 
         headerText = (TextView) findViewById(R.id.mainText);
+        mProgressView = findViewById(R.id.podujatie_progress);
 
         List<PodujatieResponseEntityModel> listValues = new ArrayList<PodujatieResponseEntityModel>();
 
@@ -64,6 +62,7 @@ public class PodujatieListActivity extends ListActivity {
             headerText.setText(type.getValue());
         }
 
+        super.showProgress(true);
         switch (type) {
             case NAJBLIZSIE_PODUJATIA:
                 new NajblizsiePodujatieAsyncTask(this).execute(new Pair<PodujatieAdapter, Pair<DateTime, Pair<Long, Long>>>(adapter, new Pair<DateTime, Pair<Long, Long>>(new DateTime(new Date()), new Pair<Long, Long>(200l, 0l))));
@@ -75,17 +74,10 @@ public class PodujatieListActivity extends ListActivity {
                 new MojeVystupenieAsyncTask(this).execute(new Pair<PodujatieAdapter, Pair<DateTime, Pair<Long, Long>>>(adapter, new Pair<DateTime, Pair<Long, Long>>(new DateTime(new Date()), new Pair<Long, Long>(200l, 0l))));
                 break;
             default:
+                super.showProgress(false);
                 headerText.setText("Neznámy typ");
                 break;
         }
-    }
-
-    public void setErrorDownload(){
-        headerText.setText("Failed to download data.");
-    }
-
-    public void setSuccesDownload(){
-
     }
 
     // when an item of the list is clicked

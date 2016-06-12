@@ -3,6 +3,7 @@ package com.dusky.festival.activity.base.login;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
@@ -23,7 +24,9 @@ import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -34,6 +37,7 @@ import android.widget.Toast;
 import com.dusky.festival.R;
 import com.dusky.festival.activity.base.menu.MainMenuActivity;
 import com.dusky.festival.gae.connection.user.LoginUserAsyncTask;
+import com.dusky.festival.helper.ui.HideKeyboardHelper;
 import com.dusky.festival.parcelable.LoginParcerable;
 import com.example.dusky.myapplication.backend.user.model.UserEntityModel;
 
@@ -67,6 +71,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        HideKeyboardHelper.setupUI(findViewById(R.id.parent),this);
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
@@ -77,6 +82,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == R.id.login || id == EditorInfo.IME_NULL) {
                     attemptLogin();
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+                    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                     return true;
                 }
                 return false;
