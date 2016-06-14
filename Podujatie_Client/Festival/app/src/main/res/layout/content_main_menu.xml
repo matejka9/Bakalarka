@@ -4,39 +4,62 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".activity.base.menu.MainMenuActivity"
     tools:showIn="@layout/app_bar_main_menu">
 
-    <Button
+    <TableLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Najbližšie Podujatia"
-        android:id="@+id/najblizsie_podujatia"
-        android:layout_marginBottom="89dp"
-        android:layout_alignBottom="@+id/moje_podujatia"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true">
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Moje podujatia"
-        android:id="@+id/moje_podujatia"
-        android:layout_centerVertical="true"
-        android:layout_alignStart="@+id/najblizsie_podujatia"
-        android:layout_alignEnd="@+id/najblizsie_podujatia" />
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="MOJE VYSTÚPENIA"
-        android:id="@+id/moje_vystupenia"
-        android:layout_marginTop="48dp"
-        android:layout_below="@+id/moje_podujatia"
-        android:layout_alignStart="@+id/moje_podujatia"
-        android:layout_alignEnd="@+id/moje_podujatia" />
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Najbližšie Podujatia"
+                android:id="@+id/najblizsie_podujatia"
+                android:layout_marginBottom="50dp"
+                android:layout_alignBottom="@+id/moje_podujatia"
+                android:layout_centerHorizontal="true" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Moje podujatia"
+                android:id="@+id/moje_podujatia"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"/>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MOJE VYSTÚPENIA"
+                android:id="@+id/moje_vystupenia"
+                android:layout_marginTop="50dp"
+                android:layout_below="@+id/moje_podujatia"/>
+        </TableRow>
+    </TableLayout>
+
+
+
+
+
+
 </RelativeLayout>

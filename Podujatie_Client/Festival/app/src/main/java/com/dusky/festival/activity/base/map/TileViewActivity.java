@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -114,6 +115,7 @@ public abstract class TileViewActivity extends Activity{
         });
 
         notifikacieButton.setLayoutParams(layoutButton);
+        notifikacieButton.bringToFront();
 
         locationButton = new FloatingActionButton(this);
         locationButton.setBackground(ContextCompat.getDrawable(this, R.drawable.ic_menu_send));
@@ -133,6 +135,7 @@ public abstract class TileViewActivity extends Activity{
         });
 
         locationButton.setLayoutParams(layoutButton2);
+        locationButton.bringToFront();
 
 
         this.input = new AutoCompleteTextView(this);
@@ -149,8 +152,9 @@ public abstract class TileViewActivity extends Activity{
 
         TextView.OnEditorActionListener exampleListener = new TextView.OnEditorActionListener(){
             public boolean onEditorAction(TextView exampleView, int actionId, KeyEvent event) {
-                if (actionId == R.id.hladaj || actionId == EditorInfo.IME_NULL) {
+                if (actionId == R.id.hladaj || actionId == EditorInfo.IME_NULL || actionId == EditorInfo.IME_ACTION_DONE) {
                     pouzilInput();
+                    input.clearFocus();
                     return true;
                 }
                 return false;
@@ -163,12 +167,14 @@ public abstract class TileViewActivity extends Activity{
         input.setSingleLine();
 
 
-
+        lay.addView(tileView);
         lay.addView(notifikacieButton);
         lay.addView(locationButton);
-        lay.addView(tileView);
         lay.addView(input);
         lay.addView(mProgressView);
+
+        lay.setFocusable(true);
+        lay.setFocusableInTouchMode(true);
 
         setContentView( lay );
         HideKeyboardHelper.setupUI(lay,this);

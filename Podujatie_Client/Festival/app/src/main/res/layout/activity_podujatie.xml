@@ -12,6 +12,15 @@
     tools:context=".activity.base.menu.PodujatieListActivity"
     android:weightSum="7">
 
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:id="@+id/mainText"
+        android:text="My list"
+        android:gravity="center"
+        android:layout_alignParentTop="true"
+        android:layout_weight="1"/>
+
     <ProgressBar
         android:id="@+id/podujatie_progress"
         style="?android:attr/progressBarStyleLarge"
@@ -20,17 +29,6 @@
         android:layout_gravity="center"
         android:layout_marginBottom="8dp"
         android:visibility="gone" />
-
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:id="@+id/mainText"
-        android:text="My list"
-        android:gravity="center"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
-        android:layout_weight="1"/>
 
     <ListView
         android:layout_width="fill_parent"

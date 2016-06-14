@@ -15,9 +15,11 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.InputType;
+import android.util.Log;
 import android.util.Pair;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -95,11 +97,41 @@ public class MapTileViewActivity extends TileViewActivity {
         this.userLatitude = latitude;
         this.userLongitude = longitude;
         tile.addMarker(user, userLatitude, userLongitude, null, null);
+        Log.d("Pozicia", userLatitude + " " + userLongitude);
     }
+
+    /*@Override
+    public void onClick(View v) {
+        if (v == input){
+            input.getText().clear();
+        }
+    }*/
 
     public enum CallOutType {
         //TODO pridaj moje miesto
         STANOK, PODIUM, OSTATNE_BUDOVY, USER
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        View v = getCurrentFocus();
+        if (v instanceof EditText) {
+            int scrcoords[] = new int[2];
+            v.getLocationOnScreen(scrcoords);
+            // calculate the relative position of the clicking position against the position of the view
+            float x = event.getRawX() - scrcoords[0];
+            float y = event.getRawY() - scrcoords[1];
+
+            // check whether action is up and the clicking position is outside of the view
+            if (event.getAction() == MotionEvent.ACTION_UP
+                    && (x < 0 || x > v.getRight() - v.getLeft()
+                    || y < 0 || y > v.getBottom() - v.getTop())) {
+                if (v.getOnFocusChangeListener() != null) {
+                    v.getOnFocusChangeListener().onFocusChange(v, false);
+                }
+            }
+        }
+        return super.dispatchTouchEvent(event);
     }
 
     @Override
@@ -363,7 +395,7 @@ public class MapTileViewActivity extends TileViewActivity {
             return;
         }else{
             System.out.println("Creating user");
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5, 1, locationListener);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, locationListener);
             createUserMarker(tileView);
         }
 

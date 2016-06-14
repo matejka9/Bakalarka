@@ -20,7 +20,6 @@ public class HideKeyboardHelper {
     }
 
     public static void setupUI(View view, final Activity activity) {
-
         //Set up touch listener for non-text box views to hide keyboard.
         if(!(view instanceof EditText)) {
 
@@ -31,6 +30,20 @@ public class HideKeyboardHelper {
                     return false;
                 }
 
+            });
+        }else{
+            view.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                boolean isFirstTimeGetFocused = true;
+
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if (hasFocus && isFirstTimeGetFocused) {
+                        ((EditText) v).getText().clear();
+                        isFirstTimeGetFocused = false;
+                    } else if (!hasFocus) {
+                        isFirstTimeGetFocused = true;
+                    }
+                }
             });
         }
 
