@@ -1,4 +1,4 @@
-package com.dusky.festival.activity.base.map;
+package com.dusky.festival.activity.base.map.callout;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -9,18 +9,17 @@ import android.graphics.drawable.GradientDrawable;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.OvershootInterpolator;
 import android.view.animation.ScaleAnimation;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.dusky.festival.R;
+import com.dusky.festival.activity.base.map.MapTileViewActivity;
 
 
 public class SampleCallout extends RelativeLayout {
@@ -32,7 +31,7 @@ public class SampleCallout extends RelativeLayout {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, pixels, context.getResources().getDisplayMetrics() );
     }
 
-    public SampleCallout(Context context ) {
+    public SampleCallout(Context context) {
 
         super( context );
 
@@ -41,8 +40,8 @@ public class SampleCallout extends RelativeLayout {
         GradientDrawable drawable = new GradientDrawable();
         drawable.setColor( 0xFF313231 );
         drawable.setCornerRadius( getDIP( context, 4 ) );
-        bubble.setBackgroundDrawable( drawable );
-        bubble.setId( 1 );
+        bubble.setBackground( drawable );
+        bubble.setId(R.id.bubble);
         int padding = getDIP( context, 17 );
         bubble.setPadding( padding, padding, padding, padding );
         LayoutParams bubbleLayout = new LayoutParams( LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT );

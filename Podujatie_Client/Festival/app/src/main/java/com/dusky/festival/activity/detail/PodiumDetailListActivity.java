@@ -9,7 +9,6 @@ import android.widget.TextView;
 
 import com.dusky.festival.R;
 import com.dusky.festival.adapter.vystupenie.VystupenieAdapter;
-import com.dusky.festival.database.MojePodujatiaDBHelper;
 import com.dusky.festival.database.MojeVystupeniaDBHelper;
 import com.dusky.festival.database.VystupenieDBHelper;
 import com.example.dusky.myapplication.backend.podujatie.model.VystupenieResponseEntityModel;
@@ -27,7 +26,6 @@ public class PodiumDetailListActivity extends ListActivity{
 
     private VystupenieDBHelper dbVystupenia;
     private MojeVystupeniaDBHelper dbMojeVystupenia;
-    private MojePodujatiaDBHelper dbMojePodujatia;
     private Long idPodium;
     private Long idPodujatie;
     private Boolean prisielZPodujatia;
@@ -35,7 +33,6 @@ public class PodiumDetailListActivity extends ListActivity{
     public PodiumDetailListActivity(){
         this.dbVystupenia = new VystupenieDBHelper(this);
         this.dbMojeVystupenia = new MojeVystupeniaDBHelper(this);
-        this.dbMojePodujatia = new MojePodujatiaDBHelper(this);
     }
 
     @Override

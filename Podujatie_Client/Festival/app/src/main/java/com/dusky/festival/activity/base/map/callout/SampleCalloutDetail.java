@@ -34,6 +34,8 @@ public class SampleCalloutDetail extends RelativeLayout {
 	private Button detailButton;
 	private Long budovaId;
 	private Long podujatieId;
+	private Long id;
+	private MapTileViewActivity map;
 
 	private static int getDIP( Context context, int pixels ) {
 		return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, pixels, context.getResources().getDisplayMetrics() );
@@ -42,14 +44,13 @@ public class SampleCalloutDetail extends RelativeLayout {
 	public SampleCalloutDetail(final Context context , MapTileViewActivity.CallOutType stanok) {
 
 		super( context );
-
 		// children
 		LinearLayout bubble = new LinearLayout( context );
 		GradientDrawable drawable = new GradientDrawable();
 		drawable.setColor( 0xFF313231 );
 		drawable.setCornerRadius( getDIP( context, 4 ) );
-		bubble.setBackgroundDrawable( drawable );
-		bubble.setId( 1 );
+		bubble.setBackground( drawable );
+		bubble.setId( R.id.bubble );
 		int padding = getDIP( context, 17 );
 		bubble.setPadding( padding, padding, padding, padding );
 		LayoutParams bubbleLayout = new LayoutParams( LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT );
@@ -130,6 +131,23 @@ public class SampleCalloutDetail extends RelativeLayout {
 
 				labels.addView(detailButton);
 				break;
+			case MOJE_MIESTO:
+				detailButton = new Button(context);
+				detailButton.setText(R.string.zmaz);
+				detailButton.setLayoutParams(new LayoutParams(
+						ViewGroup.LayoutParams.WRAP_CONTENT,
+						ViewGroup.LayoutParams.WRAP_CONTENT));
+
+				buttonListener = new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						map.removeMojeMiesto(id);
+						setVisibility(GONE);
+					}
+				};
+				detailButton.setOnClickListener(buttonListener);
+				labels.addView(detailButton);
+				break;
 			default:
 				break;
 		}
@@ -147,6 +165,14 @@ public class SampleCalloutDetail extends RelativeLayout {
 
 	public void setBudovaId(Long budovaId) {
 		this.budovaId = budovaId;
+	}
+
+	public void setMap(MapTileViewActivity map) {
+		this.map = map;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public void transitionIn() {

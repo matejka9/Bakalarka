@@ -51,6 +51,14 @@
             android:name=".activity.detail.PodiumDetailListActivity"
             android:label="@string/title_activity_podium_detail"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".activity.detail.NotifikacieDetailListActivity"
+            android:label="@string/title_notifikacie_list"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".activity.detail.NotifikaciaDetailActivity"
+            android:label="@string/title_notifikacie_detail"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />

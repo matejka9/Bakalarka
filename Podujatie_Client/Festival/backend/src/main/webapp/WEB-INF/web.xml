@@ -21,6 +21,16 @@
         </user-data-constraint>
     </security-constraint>
 
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>notifikacia</web-resource-name>
+            <url-pattern>/notifikacia/*</url-pattern>
+        </web-resource-collection>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+
     <context-param>
         <param-name>com.sun.faces.enableThreading</param-name>
         <param-value>true</param-value>
@@ -34,6 +44,7 @@
             <param-value>
                 com.example.dusky.myapplication.backend.endpoint.user.UserEndpoint,
                 com.example.dusky.myapplication.backend.endpoint.podujatie.PodujatieEndpoint,
+                com.example.dusky.myapplication.backend.endpoint.notifikacia.NotifikaciaEndpoint,
                 com.example.dusky.myapplication.backend.MyEndpoint,
             </param-value>
         </init-param>

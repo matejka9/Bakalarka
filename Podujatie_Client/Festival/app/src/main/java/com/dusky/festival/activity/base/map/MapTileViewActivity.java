@@ -1,13 +1,13 @@
 package com.dusky.festival.activity.base.map;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -17,22 +17,19 @@ import android.support.v4.content.ContextCompat;
 import android.text.InputType;
 import android.util.Log;
 import android.util.Pair;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dusky.festival.R;
+import com.dusky.festival.activity.base.map.callout.SampleCallout;
 import com.dusky.festival.activity.base.map.callout.SampleCalloutDetail;
 import com.dusky.festival.activity.base.map.provider.BitmapProviderLocalFiles;
+import com.dusky.festival.activity.detail.NotifikacieDetailListActivity;
+import com.dusky.festival.database.MojeMiestaDbHelper;
 import com.dusky.festival.database.TovarDBHelper;
 import com.dusky.festival.database.VystupenieDBHelper;
 import com.dusky.festival.gae.connection.MapaAsyncTask;
@@ -40,6 +37,7 @@ import com.dusky.festival.gps.MyLocationListener;
 import com.dusky.festival.helper.image.SplitCutterImage;
 import com.dusky.festival.helper.image.SplittedImage;
 import com.dusky.festival.helper.ui.HideKeyboardHelper;
+import com.dusky.festival.model.MyPoint;
 import com.example.dusky.myapplication.backend.podujatie.model.OstatneMiestaResponseEntityModel;
 import com.example.dusky.myapplication.backend.podujatie.model.PodiumResponseEntityModel;
 import com.example.dusky.myapplication.backend.podujatie.model.PodujatieDetailResponseEntityModel;
@@ -66,13 +64,16 @@ public class MapTileViewActivity extends TileViewActivity {
     private double SOUTH_EAST_LONGITUDE;
 
     private Long idPodujatie;
+    private Long idMapa;
     private String keyMapy;
+
+    private MojeMiestaDbHelper mojeMiestaDbHelper;
 
     private PodujatieDetailResponseEntityModel data;
     private List<StanokResponseEntityModel> stanky;
     private List<PodiumResponseEntityModel> podia;
     private List<OstatneMiestaResponseEntityModel> ostatneMiesta;
-    private List<String> vlastneMiesta;//TODO nacitaj z databazy
+    private List<MyPoint> mojeMiesta;
 
     private HashMap<Long, List<TovarResponseEntityModel>> stanokAndTovar;
     private HashMap<Long, List<VystupenieResponseEntityModel>> podiumAndVystupenie;
@@ -80,7 +81,7 @@ public class MapTileViewActivity extends TileViewActivity {
     private ArrayList<ImageView> ostatneBudovyMarkre;
     private ArrayList<ImageView> stankyMarkre;
     private ArrayList<ImageView> podiaMarkre;
-    private ArrayList<ImageView> vlastneMiestaMarkre;//TODO vytvor markre pre nacitane
+    private ArrayList<ImageView> mojeMiestaMarkre;
 
     private LocationManager locationManager;
     private View user;
@@ -89,6 +90,7 @@ public class MapTileViewActivity extends TileViewActivity {
     private MyLocationListener locationListener;
 
     private int indexNajlacnejsi;
+
 
     public void changePosition(double latitude, double longitude) {
         TileView tile = getTileView();
@@ -100,16 +102,8 @@ public class MapTileViewActivity extends TileViewActivity {
         Log.d("Pozicia", userLatitude + " " + userLongitude);
     }
 
-    /*@Override
-    public void onClick(View v) {
-        if (v == input){
-            input.getText().clear();
-        }
-    }*/
-
     public enum CallOutType {
-        //TODO pridaj moje miesto
-        STANOK, PODIUM, OSTATNE_BUDOVY, USER
+        STANOK, PODIUM, OSTATNE_BUDOVY, USER, MOJE_MIESTO
     }
 
     @Override
@@ -137,6 +131,7 @@ public class MapTileViewActivity extends TileViewActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mojeMiestaDbHelper = new MojeMiestaDbHelper(this);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -147,6 +142,7 @@ public class MapTileViewActivity extends TileViewActivity {
         ostatneBudovyMarkre = new ArrayList<ImageView>();
         stankyMarkre = new ArrayList<ImageView>();
         podiaMarkre = new ArrayList<ImageView>();
+        mojeMiestaMarkre = new ArrayList<ImageView>();
 
         showProgress(true);
         new MapaAsyncTask().execute(new Pair<MapTileViewActivity, Long>(this, idPodujatie));
@@ -155,6 +151,9 @@ public class MapTileViewActivity extends TileViewActivity {
     @Override
     protected void pouzilNotifikacie() {
         System.out.println("Pouzil notifikacie");
+        Intent intent = new Intent(this, NotifikacieDetailListActivity.class );
+        intent.putExtra("idMapa", this.idMapa);
+        startActivity(intent);
     }
 
     @Override
@@ -163,13 +162,20 @@ public class MapTileViewActivity extends TileViewActivity {
         builder.setTitle("Nová poloha");
 
         final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_TEXT );
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
         builder.setView(input);
+
+        final Activity context = this;
+        final double longitude = this.userLongitude;
+        final double latitude = this.userLatitude;
 
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //TODO pridaj novu polohu
+                MyPoint myPoint = new MyPoint(longitude, latitude + 25, input.getText().toString());
+                Long id = mojeMiestaDbHelper.insertMojeMiesto(myPoint, idPodujatie);
+                myPoint.setId(id);
+                addMojeMiestoMarker(myPoint);
             }
         });
         builder.setNegativeButton("Zrušiť", new DialogInterface.OnClickListener() {
@@ -181,6 +187,8 @@ public class MapTileViewActivity extends TileViewActivity {
 
         builder.show();
     }
+
+
 
     @Override
     protected void pouzilInput() {
@@ -342,8 +350,8 @@ public class MapTileViewActivity extends TileViewActivity {
     }
 
     public void succesDownloadMap(Bitmap result) {
-        //Toast.makeText(this, "Succesfull download Mapa", Toast.LENGTH_LONG).show();
         System.out.println(data);
+        this.idMapa = data.getMapa().getId();
 
 
         SplittedImage obrazky = SplitCutterImage.splitImage(result, idPodujatie);
@@ -366,6 +374,7 @@ public class MapTileViewActivity extends TileViewActivity {
             }
         }
 
+        getMojeMiesta();
 
         TileView tileView = getTileView();
         tileView.setBitmapProvider(new BitmapProviderLocalFiles(keyMapy));
@@ -402,6 +411,7 @@ public class MapTileViewActivity extends TileViewActivity {
         createStankyMarkers(tileView);
         createOstatneBudovyMarkers(tileView);
         createPodieMarkers(tileView);
+        createMojeMiestaMarkers(tileView);
         tileView.getMarkerLayout().setMarkerTapListener(mapListener);
 
         frameTo( (NORTH_WEST_LATITUDE + SOUTH_EAST_LATITUDE) / 2, (NORTH_WEST_LATITUDE + SOUTH_EAST_LATITUDE) / 2);
@@ -414,12 +424,18 @@ public class MapTileViewActivity extends TileViewActivity {
         button.setBackground(ContextCompat.getDrawable(this, R.drawable.ic_menu_send));
     }
 
+
+
+    private void getMojeMiesta() {
+        this.mojeMiesta = mojeMiestaDbHelper.getAllMojeMiesto(this.idPodujatie);
+    }
+
     private void createUserMarker(TileView tileView){
         ImageView marker = new ImageView( this );
 
         marker.setTag(new Pair<CallOutType, Long>(CallOutType.USER, 1l));
 
-        marker.setImageResource(R.drawable.unnamed );
+        marker.setImageResource(R.drawable.map_marker_user);
 
         tileView.addMarker( marker, userLatitude, userLongitude, null, null );
         user = marker;
@@ -466,6 +482,48 @@ public class MapTileViewActivity extends TileViewActivity {
         }
     }
 
+    private void createMojeMiestaMarkers(TileView tileView) {
+        for( MyPoint mojeMiesto : mojeMiesta ) {
+            createMojeMiestoMarker(tileView, mojeMiesto);
+        }
+    }
+
+    private void addMojeMiestoMarker(MyPoint myPoint) {
+        mojeMiesta.add(myPoint);
+        createMojeMiestoMarker(getTileView(), myPoint);
+    }
+
+    public void removeMojeMiesto(Long id){
+        for (int index = 0; index < mojeMiestaMarkre.size(); index++){
+            ImageView marker = mojeMiestaMarkre.get(index);
+            Long markerId = ((Pair<CallOutType, Long>) marker.getTag()).second;
+            if (id == markerId){
+                getTileView().removeMarker(marker);
+                mojeMiestaMarkre.remove(index);
+                break;
+            }
+        }
+        for (int index = 0; index < mojeMiesta.size(); index++ ){
+            MyPoint mojeMiesto = mojeMiesta.get(index);
+            if (mojeMiesto.getId() == id){
+                mojeMiestaDbHelper.deleteMojeMiesto(mojeMiesto);
+                break;
+            }
+        }
+    }
+
+    private void createMojeMiestoMarker(TileView tileView, MyPoint mojeMiesto) {
+        ImageView marker = new ImageView( this );
+
+        marker.setTag(new Pair<CallOutType, Long>(CallOutType.MOJE_MIESTO, mojeMiesto.getId()));
+
+        marker.setImageResource(R.drawable.map_marker_special );
+
+
+        tileView.addMarker( marker, mojeMiesto.getLatitude(), mojeMiesto.getLongitude(), null, null );
+        mojeMiestaMarkre.add(marker);
+    }
+
     private MarkerLayout.MarkerTapListener mapListener = new MarkerLayout.MarkerTapListener() {
 
         @Override
@@ -478,12 +536,12 @@ public class MapTileViewActivity extends TileViewActivity {
                     for (StanokResponseEntityModel stanok: stanky) {
                         if (stanok.getId() == typeAndId.second) {
                             tileView.slideToAndCenter(stanok.getLatidute(), stanok.getLongitude());
-                            SampleCalloutDetail callout = new SampleCalloutDetail(view.getContext(), typeAndId.first);
-                            tileView.addCallout(callout, stanok.getLatidute(), stanok.getLongitude(), -0.5f, -1.0f);
-                            callout.transitionIn();
-                            callout.setTitle("Stánok");
-                            callout.setSubtitle(stanok.getNazov());
-                            callout.setBudovaId(stanok.getId());
+                            SampleCalloutDetail calloutStanok = new SampleCalloutDetail(view.getContext(), typeAndId.first);
+                            tileView.addCallout(calloutStanok, stanok.getLatidute(), stanok.getLongitude(), -0.5f, -1.0f);
+                            calloutStanok.transitionIn();
+                            calloutStanok.setTitle("Stánok");
+                            calloutStanok.setSubtitle(stanok.getNazov());
+                            calloutStanok.setBudovaId(stanok.getId());
                         }
                     }
                     break;
@@ -491,11 +549,11 @@ public class MapTileViewActivity extends TileViewActivity {
                     for (OstatneMiestaResponseEntityModel ostatneMiesto: ostatneMiesta) {
                         if (ostatneMiesto.getId() == typeAndId.second) {
                             tileView.slideToAndCenter(ostatneMiesto.getLatidute(), ostatneMiesto.getLongitude());
-                            com.dusky.festival.activity.base.map.SampleCallout callout = new com.dusky.festival.activity.base.map.SampleCallout(view.getContext());
-                            tileView.addCallout(callout, ostatneMiesto.getLatidute(), ostatneMiesto.getLongitude(), -0.5f, -1.0f);
-                            callout.transitionIn();
-                            callout.setTitle(ostatneMiesto.getNazov());
-                            callout.setSubtitle(ostatneMiesto.getDetail());
+                            SampleCallout calloutOstatnaBudova = new SampleCallout(view.getContext());
+                            tileView.addCallout(calloutOstatnaBudova, ostatneMiesto.getLatidute(), ostatneMiesto.getLongitude(), -0.5f, -1.0f);
+                            calloutOstatnaBudova.transitionIn();
+                            calloutOstatnaBudova.setTitle(ostatneMiesto.getNazov());
+                            calloutOstatnaBudova.setSubtitle(ostatneMiesto.getDetail());
                         }
                     }
                     break;
@@ -503,25 +561,38 @@ public class MapTileViewActivity extends TileViewActivity {
                     for (PodiumResponseEntityModel podium: podia) {
                         if (podium.getId() == typeAndId.second) {
                             tileView.slideToAndCenter(podium.getLatidute(), podium.getLongitude());
-                            SampleCalloutDetail callout = new SampleCalloutDetail(view.getContext(), typeAndId.first);
-                            tileView.addCallout(callout, podium.getLatidute(), podium.getLongitude(), -0.5f, -1.0f);
-                            callout.transitionIn();
-                            callout.setTitle("Pódium");
-                            callout.setSubtitle(podium.getNazov());
-                            callout.setBudovaId(podium.getId());
-                            callout.setPodujatieId(idPodujatie);
+                            SampleCalloutDetail calloutPodium = new SampleCalloutDetail(view.getContext(), typeAndId.first);
+                            tileView.addCallout(calloutPodium, podium.getLatidute(), podium.getLongitude(), -0.5f, -1.0f);
+                            calloutPodium.transitionIn();
+                            calloutPodium.setTitle("Pódium");
+                            calloutPodium.setSubtitle(podium.getNazov());
+                            calloutPodium.setBudovaId(podium.getId());
+                            calloutPodium.setPodujatieId(idPodujatie);
                         }
                     }
                     break;
                 case USER:
                     tileView.slideToAndCenter(userLatitude, userLongitude);
-                    com.dusky.festival.activity.base.map.SampleCallout callout = new com.dusky.festival.activity.base.map.SampleCallout(view.getContext());
-                    tileView.addCallout(callout, userLatitude, userLongitude, -0.5f, -1.0f);
-                    callout.transitionIn();
-                    callout.setTitle("Tu ste vy");
+                    SampleCallout calloutUser = new SampleCallout(view.getContext());
+                    tileView.addCallout(calloutUser, userLatitude, userLongitude, -0.5f, -1.0f);
+                    calloutUser.transitionIn();
+                    calloutUser.setTitle("Tu sa nachádzate");
 
                     break;
-                //TODO uhendluj moje miesto
+                case MOJE_MIESTO:
+                    for (MyPoint mojeMiesto: mojeMiesta) {
+                        if (mojeMiesto.getId() == typeAndId.second) {
+                            tileView.slideToAndCenter(mojeMiesto.getLatitude(), mojeMiesto.getLongitude());
+                            SampleCalloutDetail calloutMojeMiesto = new SampleCalloutDetail(view.getContext(), typeAndId.first);
+                            tileView.addCallout(calloutMojeMiesto, mojeMiesto.getLatitude(), mojeMiesto.getLongitude(), -0.5f, -1.0f);
+                            calloutMojeMiesto.transitionIn();
+                            calloutMojeMiesto.setTitle("Moje Miesto");
+                            calloutMojeMiesto.setSubtitle(mojeMiesto.getText());
+                            calloutMojeMiesto.setId(mojeMiesto.getId());
+                            calloutMojeMiesto.setMap(MapTileViewActivity.this);
+                        }
+                    }
+                    break;
                 default:
                     break;
             }
